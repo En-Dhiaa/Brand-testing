@@ -10,6 +10,7 @@
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "seed": "tsx prisma/seed.ts",
+    "postinstall": "prisma generate",
     "test": "node --test --import tsx tests/**/*.test.ts",
     "test:e2e": "tsx scripts/e2e-smoke-test.ts"
   },
