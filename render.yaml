@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: seu-logo-color-studio
+    env: node
+    plan: free
+    buildCommand: npm install && npx prisma db push && npm run seed && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: file:./dev.db
+      - key: ADMIN_SESSION_SECRET
+        generateValue: true
