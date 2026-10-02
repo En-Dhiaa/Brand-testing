@@ -64,6 +64,20 @@
 
 ---
 
+## 🌐 النشر العام المجاني (Free Public Deployment)
+
+### 1. النشر المباشر بضغطة زر على Netlify (Netlify Starter Free Tier):
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/En-Dhiaa/Brand-testing)
+
+- **رابط الاستيراد المباشر في Netlify:** [https://app.netlify.com/start/deploy?repository=https://github.com/En-Dhiaa/Brand-testing](https://app.netlify.com/start/deploy?repository=https://github.com/En-Dhiaa/Brand-testing)
+- **ملف الإعداد التلقائي:** تم تجهيز ملف [`netlify.toml`](./netlify.toml) ليتولى بناء Next.js وتوليد Prisma وحفظ قاعدة البيانات التلقائي.
+- **شروط استضافة Netlify:** خطة Starter مجانية ومستقرة، تتجدد شهرياً بدون انتهاء صلاحية، وتشمل شهادة SSL مجانية ونطاقاً فرعياً دائم `*.netlify.app` مع سعة نقل بيانات 100GB شهرياً بدون رسوم.
+
+### 2. النشر المباشر بضغطة زر على Render:
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/En-Dhiaa/Brand-testing)
+
+---
+
 ## 🚀 التشغيل المحلي
 
 ### 1. المتطلبات
