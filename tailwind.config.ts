@@ -38,7 +38,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        arabic: ["var(--font-cairo)", "Tajawal", "system-ui", "sans-serif"],
+        arabic: ["Cairo", "Tajawal", "system-ui", "-apple-system", "sans-serif"],
       },
       borderRadius: {
         app: "16px",
