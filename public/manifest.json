@@ -1,0 +1,23 @@
+{
+  "name": "استوديو ألوان الشعار - الجامعة السعودية الإلكترونية",
+  "short_name": "ألوان الشعار",
+  "description": "منصة المشاركة التفاعلية لاختيار وتخصيص ألوان الهوية البصرية الرسمية للجامعة السعودية الإلكترونية",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#531B23",
+  "theme_color": "#531B23",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

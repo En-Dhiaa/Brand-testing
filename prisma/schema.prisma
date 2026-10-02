@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Proposal {
+  id            String    @id @default(cuid())
+  publicId      String    @unique
+  design        String    // JSON string containing logoVersion, background, and component parts
+  previewUrl    String?
+  pngUrl        String?
+  jpgUrl        String?
+  status        String    @default("PUBLISHED") // PUBLISHED, HIDDEN, DELETED
+  likesCount    Int       @default(0)
+  votesCount    Int       @default(0)
+  commentsCount Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  votes         Vote[]
+  likes         Like[]
+  comments      Comment[]
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([votesCount])
+  @@index([likesCount])
+}
+
+model Like {
+  id         String   @id @default(cuid())
+  proposalId String
+  visitorId  String
+  createdAt  DateTime @default(now())
+
+  proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@unique([proposalId, visitorId])
+  @@index([proposalId])
+}
+
+model Vote {
+  id         String   @id @default(cuid())
+  proposalId String
+  voterId    String
+  createdAt  DateTime @default(now())
+
+  proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@unique([proposalId, voterId])
+  @@index([proposalId])
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  proposalId String
+  visitorId  String
+  userName   String   @default("مشارك")
+  content    String
+  status     String   @default("APPROVED") // APPROVED, HIDDEN, DELETED, PENDING
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@index([proposalId])
+  @@index([status])
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String   @default("مدير النظام")
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model AdminAction {
+  id         String   @id @default(cuid())
+  adminEmail String
+  action     String
+  targetId   String?
+  details    String?
+  createdAt  DateTime @default(now())
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
