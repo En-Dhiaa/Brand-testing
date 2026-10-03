@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
+import { ensureInitialAdmin } from "@/lib/db/ensure-initial-admin";
 import { AdminLoginInputSchema } from "@/lib/validation/proposal-schema";
 import {
   verifyPassword,
@@ -20,6 +21,8 @@ export async function POST(req: NextRequest) {
     }
 
     const { email, password } = parseResult.data;
+
+    await ensureInitialAdmin();
 
     const admin = await prisma.adminUser.findUnique({
       where: { email: email.toLowerCase().trim() },
