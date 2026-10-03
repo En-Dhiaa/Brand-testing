@@ -1,7 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  datasourceUrl: process.env.NETLIFY_DB_URL || process.env.DATABASE_URL,
+});
 
 async function main() {
   const adminEmail = (process.env.ADMIN_INITIAL_EMAIL || "dhiaa.org@gmail.com").toLowerCase().trim();
