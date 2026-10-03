@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db/prisma";
+import { and, desc, eq, like } from "drizzle-orm";
+import { db } from "@/db";
+import { adminActions, proposals } from "@/db/schema";
 import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth/admin-auth";
 
 async function getAdminSession(req: NextRequest) {
@@ -19,30 +21,27 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status"); // all, PUBLISHED, HIDDEN, DELETED
     const search = searchParams.get("search")?.trim();
 
-    const where: Record<string, unknown> = {};
-    if (status && status !== "all") {
-      where.status = status;
-    }
-    if (search) {
-      where.publicId = { contains: search.toUpperCase() };
-    }
+    const rows = await db
+      .select({
+        id: proposals.id,
+        publicId: proposals.publicId,
+        design: proposals.design,
+        status: proposals.status,
+        likesCount: proposals.likesCount,
+        votesCount: proposals.votesCount,
+        commentsCount: proposals.commentsCount,
+        createdAt: proposals.createdAt,
+      })
+      .from(proposals)
+      .where(
+        and(
+          status && status !== "all" ? eq(proposals.status, status) : undefined,
+          search ? like(proposals.publicId, `%${search.toUpperCase()}%`) : undefined
+        )
+      )
+      .orderBy(desc(proposals.createdAt));
 
-    const proposals = await prisma.proposal.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        publicId: true,
-        design: true,
-        status: true,
-        likesCount: true,
-        votesCount: true,
-        commentsCount: true,
-        createdAt: true,
-      },
-    });
-
-    const formatted = proposals.map((p) => {
+    const formatted = rows.map((p) => {
       let design;
       try {
         design = JSON.parse(p.design);
@@ -75,19 +74,21 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "البيانات المدخلة غير صحيحة" }, { status: 400 });
     }
 
-    const updated = await prisma.proposal.update({
-      where: { id },
-      data: { status },
-    });
+    const [updated] = await db
+      .update(proposals)
+      .set({ status })
+      .where(eq(proposals.id, id))
+      .returning();
+    if (!updated) {
+      return NextResponse.json({ error: "الاقتراح غير موجود" }, { status: 404 });
+    }
 
     // Record audit log
-    await prisma.adminAction.create({
-      data: {
-        adminEmail: session.email,
-        action: `PROPOSAL_STATUS_${status}`,
-        targetId: id,
-        details: `تحديث حالة الاقتراح ${updated.publicId} إلى ${status}`,
-      },
+    await db.insert(adminActions).values({
+      adminEmail: session.email,
+      action: `PROPOSAL_STATUS_${status}`,
+      targetId: id,
+      details: `تحديث حالة الاقتراح ${updated.publicId} إلى ${status}`,
     });
 
     return NextResponse.json({

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db/prisma";
+import { and, count, desc, eq, like } from "drizzle-orm";
+import { db } from "@/db";
+import { proposals } from "@/db/schema";
+import { getSetting } from "@/lib/db/queries";
 import { CreateProposalInputSchema } from "@/lib/validation/proposal-schema";
 import { VISITOR_COOKIE_NAME, getOrCreateVisitorId } from "@/lib/auth/visitor-session";
 import crypto from "crypto";
@@ -28,9 +31,7 @@ export async function POST(req: NextRequest) {
     const { design } = parseResult.data;
 
     // Check system participation status
-    const setting = await prisma.systemSetting.findUnique({
-      where: { key: "participation_status" },
-    });
+    const setting = await getSetting("participation_status");
     if (setting?.value === "closed") {
       return NextResponse.json(
         { error: "المشاركة واستقبال الاقتراحات مغلقة حالياً من قبل الإدارة" },
@@ -42,7 +43,11 @@ export async function POST(req: NextRequest) {
     let publicId = generatePublicId();
     let isUnique = false;
     for (let attempts = 0; attempts < 5; attempts++) {
-      const existing = await prisma.proposal.findUnique({ where: { publicId } });
+      const [existing] = await db
+        .select({ id: proposals.id })
+        .from(proposals)
+        .where(eq(proposals.publicId, publicId))
+        .limit(1);
       if (!existing) {
         isUnique = true;
         break;
@@ -55,13 +60,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Store immutable proposal snapshot
-    const proposal = await prisma.proposal.create({
-      data: {
+    const [proposal] = await db
+      .insert(proposals)
+      .values({
         publicId,
         design: JSON.stringify(design),
         status: "PUBLISHED",
-      },
-    });
+      })
+      .returning();
 
     const visitorId = getOrCreateVisitorId(req.cookies.get(VISITOR_COOKIE_NAME)?.value);
 
@@ -105,44 +111,39 @@ export async function GET(req: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Filter condition for public gallery
-    const whereCondition: Record<string, unknown> = {
-      status: "PUBLISHED",
-    };
-
-    if (search) {
-      whereCondition.publicId = {
-        contains: search.toUpperCase(),
-      };
-    }
+    const whereCondition = and(
+      eq(proposals.status, "PUBLISHED"),
+      search ? like(proposals.publicId, `%${search.toUpperCase()}%`) : undefined
+    );
 
     // Ordering
-    let orderBy: Record<string, string> = { createdAt: "desc" };
+    let orderBy = desc(proposals.createdAt);
     if (sort === "votes") {
-      orderBy = { votesCount: "desc" };
+      orderBy = desc(proposals.votesCount);
     } else if (sort === "likes") {
-      orderBy = { likesCount: "desc" };
+      orderBy = desc(proposals.likesCount);
     }
 
-    const [proposals, total] = await Promise.all([
-      prisma.proposal.findMany({
-        where: whereCondition,
-        skip,
-        take: limit,
-        orderBy,
-        select: {
-          id: true,
-          publicId: true,
-          design: true,
-          likesCount: true,
-          votesCount: true,
-          commentsCount: true,
-          createdAt: true,
-        },
-      }),
-      prisma.proposal.count({ where: whereCondition }),
+    const [rows, [{ total }]] = await Promise.all([
+      db
+        .select({
+          id: proposals.id,
+          publicId: proposals.publicId,
+          design: proposals.design,
+          likesCount: proposals.likesCount,
+          votesCount: proposals.votesCount,
+          commentsCount: proposals.commentsCount,
+          createdAt: proposals.createdAt,
+        })
+        .from(proposals)
+        .where(whereCondition)
+        .orderBy(orderBy)
+        .offset(skip)
+        .limit(limit),
+      db.select({ total: count() }).from(proposals).where(whereCondition),
     ]);
 
-    const formatted = proposals.map((p) => {
+    const formatted = rows.map((p) => {
       let parsedDesign;
       try {
         parsedDesign = JSON.parse(p.design);

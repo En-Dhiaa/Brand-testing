@@ -1,13 +1,10 @@
 [build]
-  command = "npx prisma db push && npm run seed && npm run build"
+  command = "npm run build"
   publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
   ADMIN_SESSION_SECRET = "seu-brand-studio-prod-secret-2026-cairo"
-
-[functions]
-  included_files = ["dev.db", "prisma/**"]
 
 [[headers]]
   for = "/*"

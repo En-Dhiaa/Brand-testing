@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db/prisma";
+import { and, desc, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { comments, likes, votes } from "@/db/schema";
+import { findProposalByRawId } from "@/lib/db/queries";
 import { VISITOR_COOKIE_NAME } from "@/lib/auth/visitor-session";
 
 export async function GET(
@@ -12,24 +15,8 @@ export async function GET(
       return NextResponse.json({ error: "معرف الاقتراح مطلوب" }, { status: 400 });
     }
 
-    const proposal = await prisma.proposal.findFirst({
-      where: {
-        OR: [{ publicId: rawId.toUpperCase() }, { id: rawId }],
-        status: { in: ["PUBLISHED", "HIDDEN"] }, // Hidden is accessible via direct link for auditing
-      },
-      include: {
-        comments: {
-          where: { status: "APPROVED" },
-          orderBy: { createdAt: "desc" },
-          select: {
-            id: true,
-            userName: true,
-            content: true,
-            createdAt: true,
-          },
-        },
-      },
-    });
+    // Hidden is accessible via direct link for auditing
+    const proposal = await findProposalByRawId(rawId, ["PUBLISHED", "HIDDEN"]);
 
     if (!proposal) {
       return NextResponse.json({ error: "الاقتراح غير موجود" }, { status: 404 });
@@ -41,27 +28,32 @@ export async function GET(
     let hasLiked = false;
 
     if (visitorId) {
-      const [voteRecord, likeRecord] = await Promise.all([
-        prisma.vote.findUnique({
-          where: {
-            proposalId_voterId: {
-              proposalId: proposal.id,
-              voterId: visitorId,
-            },
-          },
-        }),
-        prisma.like.findUnique({
-          where: {
-            proposalId_visitorId: {
-              proposalId: proposal.id,
-              visitorId,
-            },
-          },
-        }),
+      const [[voteRecord], [likeRecord]] = await Promise.all([
+        db
+          .select({ id: votes.id })
+          .from(votes)
+          .where(and(eq(votes.proposalId, proposal.id), eq(votes.voterId, visitorId)))
+          .limit(1),
+        db
+          .select({ id: likes.id })
+          .from(likes)
+          .where(and(eq(likes.proposalId, proposal.id), eq(likes.visitorId, visitorId)))
+          .limit(1),
       ]);
       hasVoted = !!voteRecord;
       hasLiked = !!likeRecord;
     }
+
+    const approvedComments = await db
+      .select({
+        id: comments.id,
+        userName: comments.userName,
+        content: comments.content,
+        createdAt: comments.createdAt,
+      })
+      .from(comments)
+      .where(and(eq(comments.proposalId, proposal.id), eq(comments.status, "APPROVED")))
+      .orderBy(desc(comments.createdAt));
 
     let parsedDesign;
     try {
@@ -82,7 +74,7 @@ export async function GET(
         isLocked: true, // Submitted proposals are permanently immutable
         hasVoted,
         hasLiked,
-        comments: proposal.comments,
+        comments: approvedComments,
       },
     });
   } catch (error) {

@@ -1,4 +1,6 @@
-import { prisma } from "@/lib/db/prisma";
+import { count, desc, eq, getColumns } from "drizzle-orm";
+import { db } from "@/db";
+import { comments, likes, proposals, votes } from "@/db/schema";
 import Link from "next/link";
 import {
   FileCheck2,
@@ -14,38 +16,52 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
+  const countProposals = async (status?: string) => {
+    const [{ value }] = await db
+      .select({ value: count() })
+      .from(proposals)
+      .where(status ? eq(proposals.status, status) : undefined);
+    return value;
+  };
+  const countRows = async (table: typeof votes | typeof likes | typeof comments) => {
+    const [{ value }] = await db.select({ value: count() }).from(table);
+    return value;
+  };
+
   const [totalProposals, publishedCount, hiddenCount, deletedCount] =
     await Promise.all([
-      prisma.proposal.count(),
-      prisma.proposal.count({ where: { status: "PUBLISHED" } }),
-      prisma.proposal.count({ where: { status: "HIDDEN" } }),
-      prisma.proposal.count({ where: { status: "DELETED" } }),
+      countProposals(),
+      countProposals("PUBLISHED"),
+      countProposals("HIDDEN"),
+      countProposals("DELETED"),
     ]);
 
   const [totalVotes, totalLikes, totalComments, recentProposals, recentComments] =
     await Promise.all([
-      prisma.vote.count(),
-      prisma.like.count(),
-      prisma.comment.count(),
-      prisma.proposal.findMany({
-        take: 5,
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          publicId: true,
-          status: true,
-          votesCount: true,
-          likesCount: true,
-          createdAt: true,
-        },
-      }),
-      prisma.comment.findMany({
-        take: 5,
-        orderBy: { createdAt: "desc" },
-        include: {
-          proposal: { select: { publicId: true } },
-        },
-      }),
+      countRows(votes),
+      countRows(likes),
+      countRows(comments),
+      db
+        .select({
+          id: proposals.id,
+          publicId: proposals.publicId,
+          status: proposals.status,
+          votesCount: proposals.votesCount,
+          likesCount: proposals.likesCount,
+          createdAt: proposals.createdAt,
+        })
+        .from(proposals)
+        .orderBy(desc(proposals.createdAt))
+        .limit(5),
+      db
+        .select({
+          ...getColumns(comments),
+          proposal: { publicId: proposals.publicId },
+        })
+        .from(comments)
+        .innerJoin(proposals, eq(comments.proposalId, proposals.id))
+        .orderBy(desc(comments.createdAt))
+        .limit(5),
     ]);
 
   return (

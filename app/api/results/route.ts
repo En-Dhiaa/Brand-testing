@@ -1,23 +1,25 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db/prisma";
+import { desc, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { proposals } from "@/db/schema";
 import { normalizeHexColor } from "@/lib/validation/proposal-schema";
 import { LogoDesignState } from "@/types/logo";
 
 export async function GET() {
   try {
-    const publishedProposals = await prisma.proposal.findMany({
-      where: { status: "PUBLISHED" },
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        publicId: true,
-        design: true,
-        votesCount: true,
-        likesCount: true,
-        commentsCount: true,
-        createdAt: true,
-      },
-    });
+    const publishedProposals = await db
+      .select({
+        id: proposals.id,
+        publicId: proposals.publicId,
+        design: proposals.design,
+        votesCount: proposals.votesCount,
+        likesCount: proposals.likesCount,
+        commentsCount: proposals.commentsCount,
+        createdAt: proposals.createdAt,
+      })
+      .from(proposals)
+      .where(eq(proposals.status, "PUBLISHED"))
+      .orderBy(desc(proposals.createdAt));
 
     const totalProposals = publishedProposals.length;
     let totalVotes = 0;

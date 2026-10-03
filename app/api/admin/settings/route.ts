@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db/prisma";
+import { db } from "@/db";
+import { adminActions, systemSettings } from "@/db/schema";
 import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth/admin-auth";
 
 async function getAdminSession(req: NextRequest) {
@@ -15,7 +16,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const settings = await prisma.systemSetting.findMany();
+    const settings = await db.select().from(systemSettings);
     const map: Record<string, string> = {};
     settings.forEach((s) => {
       map[s.key] = s.value;
@@ -46,20 +47,17 @@ export async function POST(req: NextRequest) {
 
     for (const [key, value] of Object.entries(body)) {
       if (allowedKeys.includes(key) && typeof value === "string") {
-        await prisma.systemSetting.upsert({
-          where: { key },
-          update: { value },
-          create: { key, value },
-        });
+        await db
+          .insert(systemSettings)
+          .values({ key, value })
+          .onConflictDoUpdate({ target: systemSettings.key, set: { value, updatedAt: new Date() } });
       }
     }
 
-    await prisma.adminAction.create({
-      data: {
-        adminEmail: session.email,
-        action: "UPDATE_SYSTEM_SETTINGS",
-        details: "تحديث إعدادات النظام العامة",
-      },
+    await db.insert(adminActions).values({
+      adminEmail: session.email,
+      action: "UPDATE_SYSTEM_SETTINGS",
+      details: "تحديث إعدادات النظام العامة",
     });
 
     return NextResponse.json({ success: true, message: "تم حفظ الإعدادات بنجاح" });
