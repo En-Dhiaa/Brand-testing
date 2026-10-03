@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db/prisma";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { adminActions, adminUsers } from "@/db/schema";
+import { ensureInitialAdmin } from "@/lib/db/queries";
 import { AdminLoginInputSchema } from "@/lib/validation/proposal-schema";
 import {
   verifyPassword,
@@ -21,9 +24,13 @@ export async function POST(req: NextRequest) {
 
     const { email, password } = parseResult.data;
 
-    const admin = await prisma.adminUser.findUnique({
-      where: { email: email.toLowerCase().trim() },
-    });
+    await ensureInitialAdmin();
+
+    const [admin] = await db
+      .select()
+      .from(adminUsers)
+      .where(eq(adminUsers.email, email.toLowerCase().trim()))
+      .limit(1);
 
     if (!admin) {
       // Generic message to avoid email enumeration
@@ -48,12 +55,10 @@ export async function POST(req: NextRequest) {
     });
 
     // Record audit log
-    await prisma.adminAction.create({
-      data: {
-        adminEmail: admin.email,
-        action: "ADMIN_LOGIN",
-        details: "تسجيل دخول ناجح إلى لوحة التحكم",
-      },
+    await db.insert(adminActions).values({
+      adminEmail: admin.email,
+      action: "ADMIN_LOGIN",
+      details: "تسجيل دخول ناجح إلى لوحة التحكم",
     });
 
     const res = NextResponse.json({

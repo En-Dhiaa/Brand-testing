@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db/prisma";
+import { eq, sql } from "drizzle-orm";
+import { db } from "@/db";
+import { comments, proposals } from "@/db/schema";
+import { findProposalByRawId, getSetting } from "@/lib/db/queries";
 import { CreateCommentInputSchema } from "@/lib/validation/proposal-schema";
 import { VISITOR_COOKIE_NAME, getOrCreateVisitorId } from "@/lib/auth/visitor-session";
 
@@ -40,9 +43,7 @@ export async function POST(
     }
 
     // Check system comments status
-    const setting = await prisma.systemSetting.findUnique({
-      where: { key: "comments_status" },
-    });
+    const setting = await getSetting("comments_status");
     if (setting?.value === "closed") {
       return NextResponse.json(
         { error: "التعليقات متوقفة حالياً من قبل الإدارة" },
@@ -50,12 +51,7 @@ export async function POST(
       );
     }
 
-    const proposal = await prisma.proposal.findFirst({
-      where: {
-        OR: [{ publicId: rawId.toUpperCase() }, { id: rawId }],
-        status: "PUBLISHED",
-      },
-    });
+    const proposal = await findProposalByRawId(rawId, ["PUBLISHED"]);
 
     if (!proposal) {
       return NextResponse.json({ error: "الاقتراح غير موجود" }, { status: 404 });
@@ -65,23 +61,23 @@ export async function POST(
     const sanitizedName = sanitizeText(parseResult.data.userName || "مشارك");
     const sanitizedContent = sanitizeText(parseResult.data.content);
 
-    const [newComment] = await prisma.$transaction([
-      prisma.comment.create({
-        data: {
+    const newComment = await db.transaction(async (tx) => {
+      const [created] = await tx
+        .insert(comments)
+        .values({
           proposalId: proposal.id,
           visitorId,
           userName: sanitizedName || "مشارك",
           content: sanitizedContent,
           status: "APPROVED",
-        },
-      }),
-      prisma.proposal.update({
-        where: { id: proposal.id },
-        data: {
-          commentsCount: { increment: 1 },
-        },
-      }),
-    ]);
+        })
+        .returning();
+      await tx
+        .update(proposals)
+        .set({ commentsCount: sql`${proposals.commentsCount} + 1` })
+        .where(eq(proposals.id, proposal.id));
+      return created;
+    });
 
     const res = NextResponse.json({
       success: true,

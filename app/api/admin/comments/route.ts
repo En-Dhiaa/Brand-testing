@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db/prisma";
+import { desc, eq, getColumns } from "drizzle-orm";
+import { db } from "@/db";
+import { adminActions, comments, proposals } from "@/db/schema";
 import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth/admin-auth";
 
 async function getAdminSession(req: NextRequest) {
@@ -18,25 +20,17 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status"); // all, APPROVED, HIDDEN, DELETED, PENDING
 
-    const where: Record<string, unknown> = {};
-    if (status && status !== "all") {
-      where.status = status;
-    }
+    const rows = await db
+      .select({
+        ...getColumns(comments),
+        proposal: { id: proposals.id, publicId: proposals.publicId },
+      })
+      .from(comments)
+      .innerJoin(proposals, eq(comments.proposalId, proposals.id))
+      .where(status && status !== "all" ? eq(comments.status, status) : undefined)
+      .orderBy(desc(comments.createdAt));
 
-    const comments = await prisma.comment.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      include: {
-        proposal: {
-          select: {
-            id: true,
-            publicId: true,
-          },
-        },
-      },
-    });
-
-    return NextResponse.json({ comments });
+    return NextResponse.json({ comments: rows });
   } catch (error) {
     console.error("[GET /api/admin/comments] Error:", error);
     return NextResponse.json({ error: "تعذر جلب التعليقات" }, { status: 500 });
@@ -56,19 +50,27 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "البيانات المدخلة غير صحيحة" }, { status: 400 });
     }
 
-    const updated = await prisma.comment.update({
-      where: { id },
-      data: { status },
-      include: { proposal: { select: { publicId: true } } },
-    });
+    const [updatedComment] = await db
+      .update(comments)
+      .set({ status })
+      .where(eq(comments.id, id))
+      .returning();
+    if (!updatedComment) {
+      return NextResponse.json({ error: "التعليق غير موجود" }, { status: 404 });
+    }
 
-    await prisma.adminAction.create({
-      data: {
-        adminEmail: session.email,
-        action: `COMMENT_STATUS_${status}`,
-        targetId: id,
-        details: `تحديث حالة التعليق على الاقتراح ${updated.proposal.publicId} إلى ${status}`,
-      },
+    const [proposal] = await db
+      .select({ publicId: proposals.publicId })
+      .from(proposals)
+      .where(eq(proposals.id, updatedComment.proposalId))
+      .limit(1);
+    const updated = { ...updatedComment, proposal };
+
+    await db.insert(adminActions).values({
+      adminEmail: session.email,
+      action: `COMMENT_STATUS_${status}`,
+      targetId: id,
+      details: `تحديث حالة التعليق على الاقتراح ${proposal?.publicId} إلى ${status}`,
     });
 
     return NextResponse.json({
