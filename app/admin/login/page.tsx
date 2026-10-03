@@ -50,7 +50,7 @@ export default function AdminLoginPage() {
           </div>
           <h1 className="text-xl font-black text-white">تسجيل دخول الإدارة</h1>
           <p className="text-xs text-slate-400 mt-1">
-            لوحة إدارة ومتابعة استوديو ألوان الجامعة السعودية الإلكترونية
+            لوحة إدارة ومتابعة استوديو ألوان الجامعة اليمنية الإلكترونية
           </p>
         </div>
 
@@ -65,7 +65,7 @@ export default function AdminLoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@seu.edu.sa"
+                placeholder="dhiaa.org@gmail.com"
                 required
                 className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dir-ltr"
               />

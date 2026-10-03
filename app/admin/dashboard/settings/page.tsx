@@ -8,7 +8,7 @@ export default function AdminSettingsPage() {
     participation_status: "open",
     voting_status: "open",
     comments_status: "open",
-    site_title: "استوديو ألوان الشعار - الجامعة السعودية الإلكترونية",
+    site_title: "استوديو ألوان الشعار - الجامعة اليمنية الإلكترونية",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

@@ -5,27 +5,26 @@ import { AppFooter } from "@/components/layout/AppFooter";
 import { BottomNavigation } from "@/components/layout/BottomNavigation";
 
 export const metadata: Metadata = {
-  title: "استوديو ألوان الشعار | الجامعة السعودية الإلكترونية",
+  title: "استوديو ألوان الشعار | الجامعة اليمنية الإلكترونية",
   description:
-    "شارك في اختيار وتخصيص ألوان الهوية البصرية الرسمية للجامعة السعودية الإلكترونية عبر استوديو تفاعلي ذكي وسهل الاستخدام.",
+    "شارك في اختيار وتخصيص ألوان الهوية البصرية الرسمية للجامعة اليمنية الإلكترونية عبر استوديو تفاعلي ذكي وسهل الاستخدام.",
   keywords: [
-    "الجامعة السعودية الإلكترونية",
+    "الجامعة اليمنية الإلكترونية",
     "تخصيص الشعار",
     "ألوان الهوية",
     "استوديو الألوان",
-    "SEU",
-    "Saudi Electronic University",
+    "Yemen Electronic University",
   ],
-  authors: [{ name: "Saudi Electronic University" }],
+  authors: [{ name: "Yemen Electronic University" }],
   manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/icon.svg",
   },
   openGraph: {
-    title: "استوديو ألوان الشعار | الجامعة السعودية الإلكترونية",
-    description: "شارك في اختيار وتخصيص ألوان الهوية البصرية الرسمية للجامعة",
+    title: "استوديو ألوان الشعار | الجامعة اليمنية الإلكترونية",
+    description: "شارك في اختيار وتخصيص ألوان الهوية البصرية الرسمية للجامعة اليمنية الإلكترونية",
     type: "website",
-    locale: "ar_SA",
+    locale: "ar_YE",
   },
 };
 

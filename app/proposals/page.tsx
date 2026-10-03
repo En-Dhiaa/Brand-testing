@@ -189,17 +189,17 @@ export default function ProposalsGalleryPage() {
                 className="group flex flex-col bg-white rounded-3xl border border-slate-200/90 hover:border-brand-800/40 p-4 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
                 {/* Logo Canvas Preview */}
-                <div className="relative w-full h-44 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-center justify-center p-4 overflow-hidden group-hover:bg-slate-100/50 transition-colors">
+                <div className="relative w-full h-44 sm:h-48 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-center overflow-hidden">
                   {item.design && (
                     <LogoRenderer
                       design={item.design}
                       checkerboard={true}
                       interactive={false}
-                      className="max-h-36 max-w-full"
+                      className="w-full h-full"
                     />
                   )}
                   {/* Floating ID badge */}
-                  <span className="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-lg bg-white/90 backdrop-blur-sm border border-slate-200 text-[11px] font-mono font-bold text-slate-700 shadow-sm">
+                  <span className="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-lg bg-white/90 backdrop-blur-sm border border-slate-200 text-[11px] font-mono font-bold text-slate-700 shadow-sm z-10">
                     {item.publicId}
                   </span>
                 </div>

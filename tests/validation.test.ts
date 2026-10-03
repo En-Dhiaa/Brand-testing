@@ -78,3 +78,34 @@ test("CreateCommentInputSchema should sanitize and enforce limits", () => {
   const emptyResult = CreateCommentInputSchema.safeParse(emptyComment);
   assert.strictEqual(emptyResult.success, false);
 });
+
+test("ProposalDesignSchema should validate multi-stop gradients (3, 4, 5+ stops)", () => {
+  const multiStopDesign = {
+    logoVersion: "2026-v1",
+    background: { type: "transparent" as const },
+    parts: {
+      symbol_y: {
+        color: "#531B23",
+        gradient: {
+          enabled: true,
+          type: "linear" as const,
+          angle: 135,
+          stops: [
+            { color: "#531B23", offset: 0 },
+            { color: "#8E2835", offset: 35 },
+            { color: "#C9A227", offset: 70 },
+            { color: "#FFFFFF", offset: 100 },
+          ],
+        },
+      },
+      symbol_e: { color: "#531B23" },
+      symbol_u: { color: "#531B23" },
+      symbol_squares: { color: "#C9A227" },
+      text_arabic: { color: "#531B23" },
+      text_english: { color: "#531B23" },
+    },
+  };
+
+  const result = ProposalDesignSchema.safeParse(multiStopDesign);
+  assert.strictEqual(result.success, true);
+});

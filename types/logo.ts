@@ -6,6 +6,8 @@ export type LogoPartId =
   | "text_arabic"
   | "text_english";
 
+export type LogoSelectionTarget = "all" | LogoPartId;
+
 export interface GradientStop {
   color: string;
   offset: number; // 0 to 100

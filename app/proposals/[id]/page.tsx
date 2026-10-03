@@ -149,7 +149,7 @@ export default function ProposalDetailPage() {
       try {
         await navigator.share({
           title: `اقتراح هوية الجامعة ${proposal?.publicId}`,
-          text: `شاهد وصوّت لاقتراح ألوان هوية الجامعة السعودية الإلكترونية: ${proposal?.publicId}`,
+          text: `شاهد وصوّت لاقتراح ألوان هوية الجامعة اليمنية الإلكترونية: ${proposal?.publicId}`,
           url,
         });
         return;
@@ -276,12 +276,12 @@ export default function ProposalDetailPage() {
         <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden p-6 sm:p-10 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
             {/* Logo Preview Canvas (7 cols) */}
-            <div className="md:col-span-7 flex flex-col items-center justify-center p-6 sm:p-8 rounded-2xl bg-slate-50/90 border border-slate-100 relative min-h-[300px]">
+            <div className="md:col-span-7 relative w-full h-[280px] sm:h-[360px] md:h-[420px] rounded-3xl border border-slate-200/90 shadow-inner overflow-hidden flex items-center justify-center">
               <LogoRenderer
                 design={proposal.design}
                 checkerboard={true}
                 interactive={false}
-                className="max-h-[360px] max-w-full"
+                className="w-full h-full"
               />
             </div>
 
@@ -303,7 +303,7 @@ export default function ProposalDetailPage() {
                   {proposal.publicId}
                 </h1>
                 <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                  اقتراح ألوان معتمد للهوية البصرية للجامعة السعودية الإلكترونية.
+                  اقتراح ألوان معتمد للهوية البصرية للجامعة اليمنية الإلكترونية.
                 </p>
               </div>
 

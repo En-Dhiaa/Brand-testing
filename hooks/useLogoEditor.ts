@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import {
   LogoDesignState,
   LogoPartId,
+  LogoSelectionTarget,
   GradientConfig,
   BackgroundConfig,
   ColorPalette,
@@ -13,9 +14,18 @@ import { DEFAULT_DESIGN_STATE } from "@/lib/logo/logo-manifest";
 const DRAFT_KEY = "logo-color-studio:draft";
 const MAX_HISTORY = 30;
 
+const ALL_LOGO_PARTS: LogoPartId[] = [
+  "symbol_y",
+  "symbol_e",
+  "symbol_u",
+  "symbol_squares",
+  "text_arabic",
+  "text_english",
+];
+
 export function useLogoEditor() {
   const [design, setDesign] = useState<LogoDesignState>(DEFAULT_DESIGN_STATE);
-  const [selectedPart, setSelectedPart] = useState<LogoPartId>("symbol_y");
+  const [selectedPart, setSelectedPart] = useState<LogoSelectionTarget>("all");
   const [history, setHistory] = useState<LogoDesignState[]>([DEFAULT_DESIGN_STATE]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [zoom, setZoom] = useState(100); // 50 to 200%
@@ -64,13 +74,26 @@ export function useLogoEditor() {
   }, [historyIndex]);
 
   const setPartColor = useCallback(
-    (partId: LogoPartId, color: string) => {
+    (target: LogoSelectionTarget, color: string) => {
+      if (target === "all") {
+        const updatedParts = { ...design.parts };
+        for (const p of ALL_LOGO_PARTS) {
+          updatedParts[p] = {
+            ...updatedParts[p],
+            color,
+            gradient: undefined,
+          };
+        }
+        pushState({ ...design, parts: updatedParts });
+        return;
+      }
+
       const next: LogoDesignState = {
         ...design,
         parts: {
           ...design.parts,
-          [partId]: {
-            ...design.parts[partId],
+          [target]: {
+            ...design.parts[target],
             color,
             gradient: undefined, // remove gradient when solid color is chosen
           },
@@ -82,13 +105,25 @@ export function useLogoEditor() {
   );
 
   const setPartGradient = useCallback(
-    (partId: LogoPartId, gradient: GradientConfig) => {
+    (target: LogoSelectionTarget, gradient: GradientConfig) => {
+      if (target === "all") {
+        const updatedParts = { ...design.parts };
+        for (const p of ALL_LOGO_PARTS) {
+          updatedParts[p] = {
+            ...updatedParts[p],
+            gradient,
+          };
+        }
+        pushState({ ...design, parts: updatedParts });
+        return;
+      }
+
       const next: LogoDesignState = {
         ...design,
         parts: {
           ...design.parts,
-          [partId]: {
-            ...design.parts[partId],
+          [target]: {
+            ...design.parts[target],
             gradient,
           },
         },
@@ -146,6 +181,7 @@ export function useLogoEditor() {
 
   const reset = useCallback(() => {
     pushState(DEFAULT_DESIGN_STATE);
+    setSelectedPart("all");
     try {
       localStorage.removeItem(DRAFT_KEY);
     } catch {}

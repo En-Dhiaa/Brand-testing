@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useId } from "react";
-import { LogoDesignState, LogoPartId, GradientConfig } from "@/types/logo";
+import { LogoDesignState, LogoPartId, LogoSelectionTarget, GradientConfig } from "@/types/logo";
 import { LOGO_PATHS, LOGO_VIEWBOX } from "@/lib/logo/logo-manifest";
 
 interface LogoRendererProps {
@@ -10,10 +10,11 @@ interface LogoRendererProps {
   size?: number | string;
   showBackground?: boolean;
   checkerboard?: boolean;
-  highlightPart?: LogoPartId | null;
+  highlightPart?: LogoSelectionTarget | null;
   onPartClick?: (partId: LogoPartId) => void;
   interactive?: boolean;
   svgRef?: React.RefObject<SVGSVGElement>;
+  innerClassName?: string;
 }
 
 export function LogoRenderer({
@@ -26,6 +27,7 @@ export function LogoRenderer({
   onPartClick,
   interactive = false,
   svgRef,
+  innerClassName,
 }: LogoRendererProps) {
   const reactId = useId().replace(/:/g, "_");
 
@@ -59,10 +61,10 @@ export function LogoRenderer({
 
     // Linear gradient
     const angleRad = ((gradient.angle - 90) * Math.PI) / 180;
-    const x1 = Math.round(50 + Math.cos(angleRad) * 50);
-    const y1 = Math.round(50 + Math.sin(angleRad) * 50);
-    const x2 = Math.round(50 + Math.cos(angleRad + Math.PI) * 50);
-    const y2 = Math.round(50 + Math.sin(angleRad + Math.PI) * 50);
+    const x1 = Math.round(50 - Math.cos(angleRad) * 50);
+    const y1 = Math.round(50 - Math.sin(angleRad) * 50);
+    const x2 = Math.round(50 + Math.cos(angleRad) * 50);
+    const y2 = Math.round(50 + Math.sin(angleRad) * 50);
 
     return (
       <linearGradient id={id} x1={`${x1}%`} y1={`${y1}%`} x2={`${x2}%`} y2={`${y2}%`}>
@@ -99,26 +101,37 @@ export function LogoRenderer({
     }
   };
 
-  const isHighlighted = (partId: LogoPartId) => highlightPart === partId;
+  const isHighlighted = (partId: LogoPartId) => highlightPart === "all" || highlightPart === partId;
+  const getStrokeWidth = (partId: LogoPartId) => {
+    if (!isHighlighted(partId)) return 0;
+    return highlightPart === "all" ? 1.5 : 3;
+  };
 
   return (
     <div
-      className={`relative inline-flex items-center justify-center transition-colors duration-200 select-none ${
+      className={`relative flex items-center justify-center transition-colors duration-200 select-none overflow-hidden ${
         checkerboard && design.background.type === "transparent" ? "checkerboard-bg" : ""
       } ${className}`}
       style={{
         width: size ? (typeof size === "number" ? `${size}px` : size) : "100%",
-        height: size ? (typeof size === "number" ? `${size}px` : size) : "auto",
+        height: size ? (typeof size === "number" ? `${size}px` : size) : "100%",
         ...getBackgroundStyle(),
       }}
     >
-      <svg
-        ref={svgRef}
-        viewBox={LOGO_VIEWBOX}
-        xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full max-h-full max-w-full drop-shadow-sm transition-all"
-        style={{ overflow: "visible" }}
+      <div
+        className={
+          innerClassName ||
+          "w-full h-full flex items-center justify-center p-3 sm:p-5 max-w-[76%] max-h-[76%]"
+        }
       >
+        <svg
+          ref={svgRef}
+          viewBox={LOGO_VIEWBOX}
+          preserveAspectRatio="xMidYMid meet"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-full max-h-full max-w-full drop-shadow-sm transition-all select-none"
+          style={{ overflow: "visible" }}
+        >
         <defs>
           {/* Gradients for each part */}
           {renderGradientDef(design.parts.symbol_y?.gradient, "symbol_y")}
@@ -149,7 +162,7 @@ export function LogoRenderer({
               d={d}
               fill={getPartFill("symbol_y")}
               stroke={isHighlighted("symbol_y") ? "#C9A227" : "none"}
-              strokeWidth={isHighlighted("symbol_y") ? 3 : 0}
+              strokeWidth={getStrokeWidth("symbol_y")}
             />
           ))}
         </g>
@@ -169,7 +182,7 @@ export function LogoRenderer({
               d={d}
               fill={getPartFill("symbol_e")}
               stroke={isHighlighted("symbol_e") ? "#C9A227" : "none"}
-              strokeWidth={isHighlighted("symbol_e") ? 3 : 0}
+              strokeWidth={getStrokeWidth("symbol_e")}
             />
           ))}
         </g>
@@ -189,7 +202,7 @@ export function LogoRenderer({
               d={d}
               fill={getPartFill("symbol_u")}
               stroke={isHighlighted("symbol_u") ? "#C9A227" : "none"}
-              strokeWidth={isHighlighted("symbol_u") ? 3 : 0}
+              strokeWidth={getStrokeWidth("symbol_u")}
             />
           ))}
         </g>
@@ -209,7 +222,7 @@ export function LogoRenderer({
               d={d}
               fill={getPartFill("symbol_squares")}
               stroke={isHighlighted("symbol_squares") ? "#C9A227" : "none"}
-              strokeWidth={isHighlighted("symbol_squares") ? 2 : 0}
+              strokeWidth={getStrokeWidth("symbol_squares")}
             />
           ))}
         </g>
@@ -246,5 +259,6 @@ export function LogoRenderer({
         </g>
       </svg>
     </div>
-  );
+  </div>
+);
 }

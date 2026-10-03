@@ -94,7 +94,7 @@ export default function ResultsPage() {
             نتائج وإحصائيات الهوية البصرية
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            بيانات رقمية حية حول تفضيلات وتصويت المجتمع على ألوان شعار الجامعة السعودية الإلكترونية.
+            بيانات رقمية حية حول تفضيلات وتصويت المجتمع على ألوان شعار الجامعة اليمنية الإلكترونية.
           </p>
         </div>
 
@@ -170,12 +170,12 @@ export default function ResultsPage() {
 
             {data?.mostVotedProposal ? (
               <div className="flex flex-col gap-4">
-                <div className="w-full h-44 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center p-4">
+                <div className="relative w-full h-48 sm:h-52 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-center overflow-hidden">
                   <LogoRenderer
                     design={data.mostVotedProposal.design}
                     checkerboard={true}
                     interactive={false}
-                    className="max-h-36 max-w-full"
+                    className="w-full h-full"
                   />
                 </div>
                 <div className="flex items-center justify-between">
@@ -221,12 +221,12 @@ export default function ResultsPage() {
 
             {data?.mostLikedProposal ? (
               <div className="flex flex-col gap-4">
-                <div className="w-full h-44 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center p-4">
+                <div className="relative w-full h-48 sm:h-52 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-center overflow-hidden">
                   <LogoRenderer
                     design={data.mostLikedProposal.design}
                     checkerboard={true}
                     interactive={false}
-                    className="max-h-36 max-w-full"
+                    className="w-full h-full"
                   />
                 </div>
                 <div className="flex items-center justify-between">

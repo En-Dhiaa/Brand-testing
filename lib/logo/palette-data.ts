@@ -25,7 +25,7 @@ export const PREDEFINED_PALETTES: ColorPalette[] = [
   {
     id: "original_heritage",
     name: "الهوية الملكية الكلاسيكية",
-    description: "الألوان الرسمية المتوارثة للجامعة السعودية الإلكترونية",
+    description: "الألوان الرسمية المتوارثة للجامعة اليمنية الإلكترونية",
     colors: {
       symbol_y: "#531B23",
       symbol_e: "#531B23",
@@ -67,7 +67,7 @@ export const PREDEFINED_PALETTES: ColorPalette[] = [
   {
     id: "green_vision",
     name: "الرؤية والازدهار",
-    description: "مستوحى من رؤية المملكة ونماء التعليم المستدام",
+    description: "مستوحى من النهضة والازدهار ونماء التعليم المستدام",
     colors: {
       symbol_y: "#1B5E20",
       symbol_e: "#2E7D32",

@@ -33,10 +33,10 @@ export function generateSvgString(design: LogoDesignState, includeBackground = t
     }
 
     const angleRad = ((gradient.angle - 90) * Math.PI) / 180;
-    const x1 = Math.round(50 + Math.cos(angleRad) * 50);
-    const y1 = Math.round(50 + Math.sin(angleRad) * 50);
-    const x2 = Math.round(50 + Math.cos(angleRad + Math.PI) * 50);
-    const y2 = Math.round(50 + Math.sin(angleRad + Math.PI) * 50);
+    const x1 = Math.round(50 - Math.cos(angleRad) * 50);
+    const y1 = Math.round(50 - Math.sin(angleRad) * 50);
+    const x2 = Math.round(50 + Math.cos(angleRad) * 50);
+    const y2 = Math.round(50 + Math.sin(angleRad) * 50);
     const stops = gradient.stops
       .map((s) => `<stop offset="${s.offset}%" stop-color="${s.color}" />`)
       .join("");
@@ -61,10 +61,10 @@ export function generateSvgString(design: LogoDesignState, includeBackground = t
         bgDef = `<radialGradient id="export_bg_grad" cx="50%" cy="50%" r="50%">${stops}</radialGradient>`;
       } else {
         const angleRad = ((g.angle - 90) * Math.PI) / 180;
-        const x1 = Math.round(50 + Math.cos(angleRad) * 50);
-        const y1 = Math.round(50 + Math.sin(angleRad) * 50);
-        const x2 = Math.round(50 + Math.cos(angleRad + Math.PI) * 50);
-        const y2 = Math.round(50 + Math.sin(angleRad + Math.PI) * 50);
+        const x1 = Math.round(50 - Math.cos(angleRad) * 50);
+        const y1 = Math.round(50 - Math.sin(angleRad) * 50);
+        const x2 = Math.round(50 + Math.cos(angleRad) * 50);
+        const y2 = Math.round(50 + Math.sin(angleRad) * 50);
         const stops = g.stops
           .map((s) => `<stop offset="${s.offset}%" stop-color="${s.color}" />`)
           .join("");

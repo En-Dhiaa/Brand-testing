@@ -149,13 +149,13 @@ export default function AdminProposalsPage() {
               className="bg-slate-800/90 rounded-2xl border border-slate-700/80 p-4 flex flex-col justify-between"
             >
               {/* Logo preview */}
-              <div className="w-full h-40 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center p-3 relative overflow-hidden mb-3">
+              <div className="relative w-full h-44 rounded-xl border border-slate-700/80 flex items-center justify-center overflow-hidden mb-3">
                 {item.design && (
                   <LogoRenderer
                     design={item.design}
                     checkerboard={true}
                     interactive={false}
-                    className="max-h-32 max-w-full"
+                    className="w-full h-full"
                   />
                 )}
                 <span

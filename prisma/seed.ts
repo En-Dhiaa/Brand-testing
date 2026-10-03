@@ -4,28 +4,25 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const adminEmail = process.env.ADMIN_INITIAL_EMAIL || "admin@seu.edu.sa";
-  const adminPassword = process.env.ADMIN_INITIAL_PASSWORD || "AdminSEU@2026!";
+  const adminEmail = (process.env.ADMIN_INITIAL_EMAIL || "dhiaa.org@gmail.com").toLowerCase().trim();
+  const adminPassword = process.env.ADMIN_INITIAL_PASSWORD || "admin1234.com";
 
-  const existingAdmin = await prisma.adminUser.findUnique({
+  const salt = await bcrypt.genSalt(10);
+  const passwordHash = await bcrypt.hash(adminPassword, salt);
+
+  await prisma.adminUser.upsert({
     where: { email: adminEmail },
+    update: {
+      passwordHash,
+      name: "مدير الهوية البصرية",
+    },
+    create: {
+      email: adminEmail,
+      name: "مدير الهوية البصرية",
+      passwordHash,
+    },
   });
-
-  if (!existingAdmin) {
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(adminPassword, salt);
-
-    await prisma.adminUser.create({
-      data: {
-        email: adminEmail,
-        name: "مدير الهوية البصرية",
-        passwordHash,
-      },
-    });
-    console.log(`[Seed] Created admin account: ${adminEmail}`);
-  } else {
-    console.log(`[Seed] Admin account already exists: ${adminEmail}`);
-  }
+  console.log(`[Seed] Configured admin account securely: ${adminEmail}`);
 
   // System settings
   const settings = [
@@ -33,13 +30,13 @@ async function main() {
     { key: "voting_status", value: "open" },
     { key: "comments_status", value: "open" },
     { key: "gallery_status", value: "open" },
-    { key: "site_title", value: "استوديو ألوان الشعار - الجامعة السعودية الإلكترونية" },
+    { key: "site_title", value: "استوديو ألوان الشعار - الجامعة اليمنية الإلكترونية" },
   ];
 
   for (const s of settings) {
     await prisma.systemSetting.upsert({
       where: { key: s.key },
-      update: {},
+      update: { value: s.value },
       create: s,
     });
   }

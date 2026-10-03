@@ -36,14 +36,14 @@ export const LOGO_PARTS_METADATA: LogoPartMetadata[] = [
   {
     id: "text_arabic",
     name: "النص العربي",
-    description: "مخطوطة: الجامعة السعودية الإلكترونية",
+    description: "مخطوطة: الجامعة اليمنية الإلكترونية",
     category: "text",
     defaultColor: LOGO_DEFAULT_COLOR,
   },
   {
     id: "text_english",
     name: "النص الإنجليزي",
-    description: "عبارة: SAUDI ELECTRONIC UNIVERSITY",
+    description: "عبارة: YEMEN ELECTRONIC UNIVERSITY",
     category: "text",
     defaultColor: LOGO_DEFAULT_COLOR,
   },

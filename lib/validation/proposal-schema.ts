@@ -32,7 +32,7 @@ export const GradientConfigSchema = z.object({
   enabled: z.boolean(),
   type: z.enum(["linear", "radial"]),
   angle: z.number().min(0).max(360),
-  stops: z.array(GradientStopSchema).min(2).max(5),
+  stops: z.array(GradientStopSchema).min(2).max(10),
 });
 
 export const PartColorConfigSchema = z.object({

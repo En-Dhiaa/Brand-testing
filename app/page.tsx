@@ -49,7 +49,7 @@ export default function HomePage() {
               {/* Institution badge */}
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-brand-200/80 shadow-sm text-brand-900 text-xs font-bold mb-6">
                 <Award className="h-4 w-4 text-gold-500" />
-                <span>الجامعة السعودية الإلكترونية • الهوية البصرية الرسمية</span>
+                <span>الجامعة اليمنية الإلكترونية • الهوية البصرية الرسمية</span>
               </div>
 
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-[1.2] tracking-tight mb-5">
@@ -214,7 +214,7 @@ export default function HomePage() {
             صوتك وتصميمك يصنعان فارقاً
           </h2>
           <p className="text-xs sm:text-base text-slate-300 max-w-xl mx-auto mb-8 leading-relaxed">
-            جميع المقترحات والتصويتات تساهم في اختيار الألوان الأكثر تعبيراً عن روح الجامعة السعودية الإلكترونية ومستقبلها الرقمي.
+            جميع المقترحات والتصويتات تساهم في اختيار الألوان الأكثر تعبيراً عن روح الجامعة اليمنية الإلكترونية ومستقبلها الرقمي.
           </p>
           <Link
             href="/customize"

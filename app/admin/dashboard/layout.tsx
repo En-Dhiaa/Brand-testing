@@ -52,7 +52,7 @@ export default function AdminDashboardLayout({
               <span className="font-bold text-sm block text-white leading-tight">
                 لوحة الإدارة
               </span>
-              <span className="text-[11px] text-slate-400">الهوية البصرية • SEU</span>
+              <span className="text-[11px] text-slate-400">الهوية البصرية • الجامعة اليمنية الإلكترونية</span>
             </div>
           </div>
 

@@ -10,8 +10,8 @@ async function runE2ETest() {
   const homeRes = await fetch(`${BASE_URL}/`);
   assert.strictEqual(homeRes.status, 200, "Homepage should return 200");
   const homeHtml = await homeRes.text();
-  assert(homeHtml.includes("استوديو ألوان الشعار"), "Homepage must contain SEU studio title");
-  console.log("✔ Homepage rendered successfully with SEU branding.");
+  assert(homeHtml.includes("استوديو ألوان الشعار"), "Homepage must contain YEU studio title");
+  console.log("✔ Homepage rendered successfully with YEU branding.");
 
   // 2. Check Customization Page
   console.log("2. Checking Customizer Page (GET /customize)...");
@@ -26,7 +26,7 @@ async function runE2ETest() {
   const proposalPayload = {
     title: "مقترح الهوية الملكية الحديثة",
     submitterName: "المهندس ضياء",
-    submitterEmail: "dhiaa@seu.edu.sa",
+    submitterEmail: "dhiaa.org@gmail.com",
     notes: "دمج متوازن بين العنابي الملكي والأخضر الزمردي والذهبي الفاخر",
     design: {
       logoVersion: "2026-v1",
@@ -147,7 +147,7 @@ async function runE2ETest() {
     headers: { "Content-Type": "application/json", Cookie: visitorCookie },
     body: JSON.stringify({
       userName: "سارة الأحمد",
-      content: "تناسق ألوان مذهل، يعطي انطباعاً عصرياً راقياً لشعار الجامعة السعودية الإلكترونية!"
+      content: "تناسق ألوان مذهل، يعطي انطباعاً عصرياً راقياً لشعار الجامعة اليمنية الإلكترونية!"
     })
   });
   const commentData = await commentRes.json();
@@ -175,8 +175,8 @@ async function runE2ETest() {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      email: "admin@seu.edu.sa",
-      password: "AdminSEU@2026!"
+      email: "dhiaa.org@gmail.com",
+      password: "admin1234.com"
     })
   });
   const adminData = await adminLoginRes.json();

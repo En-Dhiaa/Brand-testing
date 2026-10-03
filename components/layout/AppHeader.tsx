@@ -36,7 +36,7 @@ export function AppHeader() {
               استوديو ألوان الهوية
             </span>
             <span className="text-[11px] font-medium text-slate-500">
-              الجامعة السعودية الإلكترونية
+              الجامعة اليمنية الإلكترونية
             </span>
           </div>
         </Link>

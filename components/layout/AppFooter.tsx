@@ -11,7 +11,7 @@ export function AppFooter() {
           <div className="flex flex-col gap-2 text-center md:text-right">
             <div className="flex items-center justify-center md:justify-start gap-2 text-brand-800 font-bold text-lg">
               <Award className="h-5 w-5 text-gold-500" />
-              <span>الجامعة السعودية الإلكترونية</span>
+              <span>الجامعة اليمنية الإلكترونية</span>
             </div>
             <p className="text-xs text-slate-500 leading-relaxed max-w-sm mx-auto md:mx-0">
               منصة المشاركة المجتمعية التفاعلية لاختيار وتخصيص ألوان الهوية البصرية الرسمية للجامعة.
@@ -43,7 +43,7 @@ export function AppFooter() {
               <ShieldCheck className="h-3.5 w-3.5" />
               <span>دخول الإدارة</span>
             </Link>
-            <span>جميع الحقوق محفوظة © {new Date().getFullYear()} الجامعة السعودية الإلكترونية</span>
+            <span>جميع الحقوق محفوظة © {new Date().getFullYear()} الجامعة اليمنية الإلكترونية</span>
           </div>
         </div>
       </div>
